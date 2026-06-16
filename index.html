@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Builder — Dorcas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand1: #0093F5;
+      --brand2: #105070;
+      --brand3: #F0BC00;
+      --brand4: #F07575;
+      --brand5: #C1B2A5;
+      --brand6: #333333;
+      --brand7: #FFFFFF;
+      --brand8: #79C9FA;
+      --brand9: #CCE9FD;
+      --brand10: #E0D4CA;
+      --brand11: #F2EDE9;
+      --brand12: #8D8D8D;
+      --font-heading: 'Lexend', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--brand6);
+      background: var(--brand11);
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--brand2);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-title {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .topbar-title svg { opacity: 0.85; }
+    .topbar-tabs { display: flex; gap: 0; }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0 1.1rem;
+      height: 56px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.85); }
+    .tab-btn.active { color: white; border-bottom-color: var(--brand3); }
+
+    /* ── Content ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .page { max-width: 820px; margin: 0 auto; padding: 1.75rem 1rem 4rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--brand7);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--brand2);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .card-title svg { color: var(--brand1); flex-shrink: 0; }
+
+    /* ── Form grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    .form-grid .span2 { grid-column: 1 / -1; }
+    @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } .form-grid .span2 { grid-column: 1; } }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--brand2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.3rem;
+    }
+    label .opt {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--brand12);
+      font-size: 0.72rem;
+      margin-left: 4px;
+    }
+
+    input[type="text"], input[type="url"], select, textarea {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 1.5px solid var(--brand10);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--brand6);
+      background: var(--brand7);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--brand1);
+      box-shadow: 0 0 0 3px var(--brand9);
+    }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23105070' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; padding-right: 2.2rem; }
+    select option[value=""] { color: var(--brand12); }
+
+    /* ── Output ── */
+    .output-url {
+      background: var(--brand9);
+      border: 1.5px solid var(--brand8);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: var(--brand2);
+      word-break: break-all;
+      line-height: 1.6;
+      min-height: 3.5rem;
+    }
+    .output-url .ph { color: var(--brand12); font-family: var(--font-body); font-style: italic; }
+
+    /* UTM param tags */
+    .param-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
+    .param-tag {
+      font-size: 0.72rem;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 700;
+    }
+    .tag-campagne { background: #e8f5e9; color: #2e7d32; }
+    .tag-medium   { background: #e3f2fd; color: #1565c0; }
+    .tag-source   { background: #fff3e0; color: #e65100; }
+    .tag-campaign { background: #ede7f6; color: #4527a0; }
+    .tag-content  { background: #fce4ec; color: #880e4f; }
+    .tag-term     { background: #f3e5f5; color: #6a1b9a; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: wrap; }
+    .btn {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-yellow { background: var(--brand3); color: #000; }
+    .btn-yellow:hover { opacity: 0.88; }
+    .btn-outline { background: transparent; color: var(--brand2); border: 1.5px solid var(--brand10); }
+    .btn-outline:hover { border-color: var(--brand2); background: var(--brand11); }
+    .btn-danger  { background: transparent; color: var(--brand4); border: 1.5px solid var(--brand4); }
+    .btn-danger:hover  { background: #fff0f0; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── History ── */
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .badge {
+      background: var(--brand9);
+      color: var(--brand2);
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 1px 7px;
+      margin-left: 5px;
+    }
+    .history-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .history-item {
+      background: var(--brand11);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .history-item .hi-body { flex: 1; min-width: 0; }
+    .history-item .hi-url  { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--brand2); word-break: break-all; line-height: 1.5; }
+    .history-item .hi-meta { font-size: 0.7rem; color: var(--brand12); margin-top: 0.2rem; }
+    .history-item .hi-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--brand12);
+      padding: 0.25rem 0.3rem;
+      border-radius: 5px;
+      line-height: 0;
+      transition: color 0.12s, background 0.12s;
+    }
+    .icon-btn:hover         { color: var(--brand1); background: var(--brand9); }
+    .icon-btn.del:hover     { color: var(--brand4); background: #fff0f0; }
+    .empty { text-align: center; color: var(--brand12); font-size: 0.85rem; padding: 2rem 0; }
+
+    /* ── Settings ── */
+    .settings-section { margin-bottom: 1.5rem; }
+    .settings-section h3 {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--brand2);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1.5px solid var(--brand11);
+    }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+    .edit-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--brand9);
+      border: 1.5px solid var(--brand8);
+      border-radius: 20px;
+      padding: 0.22rem 0.55rem 0.22rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--brand2);
+      font-weight: 600;
+    }
+    .edit-tag button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--brand12);
+      line-height: 0;
+      padding: 0;
+      font-size: 1rem;
+      transition: color 0.12s;
+    }
+    .edit-tag button:hover { color: var(--brand4); }
+
+    .add-row { display: flex; gap: 0.5rem; align-items: center; }
+    .add-row input { flex: 1; }
+    .add-row .add-extra { width: 110px; }
+
+    .sf-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .sf-table th {
+      text-align: left;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      color: var(--brand2);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1.5px solid var(--brand10);
+    }
+    .sf-table td {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--brand11);
+      vertical-align: middle;
+    }
+    .sf-table tr:last-child td { border-bottom: none; }
+    .sf-table tr:hover td { background: var(--brand11); }
+    .sf-table input { font-size: 0.82rem; padding: 0.3rem 0.5rem; }
+    .sf-table .del-row { color: var(--brand12); }
+    .sf-table .del-row:hover { color: var(--brand4); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--brand2); color: white;
+      font-family: var(--font-heading); font-weight: 600; font-size: 0.88rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+      z-index: 99;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Section heading ── */
+    .section-head {
+      position: relative;
+      padding-top: 0.3rem;
+      margin-bottom: 1rem;
+    }
+    .section-head::before {
+      content: '';
+      display: block;
+      width: 2rem;
+      height: 3px;
+      background: var(--brand1);
+      border-radius: 2px;
+      margin-bottom: 0.4rem;
+    }
+    .section-head h2 {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--brand2);
+    }
+    .section-head p { color: var(--brand12); font-size: 0.85rem; margin-top: 0.2rem; }
+
+    .divider { border: none; border-top: 1.5px solid var(--brand10); margin: 1.25rem 0; }
+
+    /* ── Password modal ── */
+    .pw-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(16,80,112,0.45);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    .pw-overlay.show { display: flex; }
+    .pw-box {
+      background: var(--brand7);
+      border-radius: var(--radius);
+      padding: 2rem 2rem 1.5rem;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .pw-box h3 {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--brand2);
+      margin-bottom: 0.25rem;
+    }
+    .pw-box p { font-size: 0.82rem; color: var(--brand12); margin-bottom: 1rem; }
+    .pw-box input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--brand10);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .pw-box input:focus { outline: none; border-color: var(--brand1); box-shadow: 0 0 0 3px var(--brand9); }
+    .pw-box input.error { border-color: var(--brand4); box-shadow: 0 0 0 3px #fce4ec; }
+    .pw-error { font-size: 0.78rem; color: var(--brand4); margin-bottom: 0.75rem; min-height: 1rem; }
+    .pw-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    UTM Builder — Dorcas
+  </div>
+  <div class="topbar-tabs">
+    <button class="tab-btn active" onclick="switchTab('builder')">Bouwen</button>
+    <button class="tab-btn" onclick="switchTab('log')">Log <span class="badge" id="log-badge">0</span></button>
+    <button class="tab-btn" onclick="switchTab('settings')">Instellingen</button>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: BOUWEN ═══════════ -->
+<div class="tab-panel active" id="tab-builder">
+<div class="page">
+
+  <div class="section-head">
+    <h2>UTM-link genereren</h2>
+    <p>Kies je opties en kopieer de gegenereerde link.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Omschrijving
+    </div>
+    <div>
+      <label for="f-label">Soort / doel <span class="opt">wordt getoond in het log</span></label>
+      <input type="text" id="f-label" placeholder="bijv. Actiepagina Sponsor het leven — DM mailing mei">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Bestemmings-URL
+    </div>
+    <div>
+      <label for="f-url">URL</label>
+      <input type="url" id="f-url" placeholder="https://dorcas.nl/actie/..." oninput="build()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+      Campagne-parameters
+    </div>
+    <div class="form-grid">
+      <div>
+        <label for="f-medium">Medium *</label>
+        <select id="f-medium" onchange="build()"><option value="">— Kies medium —</option></select>
+      </div>
+      <div>
+        <label for="f-source">Source *</label>
+        <select id="f-source" onchange="build()"><option value="">— Kies source —</option></select>
+      </div>
+      <div class="span2">
+        <label for="f-campaign">Campaign Name *</label>
+        <select id="f-campaign" onchange="build()"><option value="">— Kies campaign —</option></select>
+      </div>
+      <div>
+        <label for="f-content">Content <span class="opt">optioneel</span></label>
+        <input type="text" id="f-content" placeholder="bijv. variant_a_maria_img_1" oninput="build()">
+      </div>
+      <div>
+        <label for="f-term">Term <span class="opt">optioneel, vrij tekstveld</span></label>
+        <input type="text" id="f-term" placeholder="bijv. noodhulp-oekraine" oninput="build()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      SF Campagne <span style="font-weight:400;color:var(--brand12);font-size:0.8rem;margin-left:4px">— voegt campagne= parameter toe</span>
+    </div>
+    <div>
+      <label for="f-sf">SF Campagne <span class="opt">optioneel</span></label>
+      <select id="f-sf" onchange="build()"><option value="">— Geen / geen campagne-code —</option></select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      Gegenereerde URL
+    </div>
+    <div class="output-url" id="output">
+      <span class="ph">Vul hierboven URL, medium, source en campaign in.</span>
+    </div>
+    <div class="param-tags" id="param-tags" style="display:none"></div>
+    <div class="btn-row">
+      <button class="btn btn-yellow" onclick="copyUrl()" id="btn-copy" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Kopieer link
+      </button>
+      <button class="btn btn-outline" onclick="resetForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+        Wis formulier
+      </button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ TAB: LOG ═══════════ -->
+<div class="tab-panel" id="tab-log">
+<div class="page">
+
+  <div class="section-head">
+    <h2>Opgeslagen links</h2>
+    <p>Alle UTM-links die je hebt opgeslagen, bewaard in je browser.</p>
+  </div>
+
+  <div class="card">
+    <div class="history-head">
+      <div class="card-title" style="margin-bottom:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Log
+        <span class="badge" id="log-count">0</span>
+      </div>
+      <button class="btn btn-danger" onclick="clearLog()" id="btn-clear" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        Alles wissen
+      </button>
+    </div>
+    <ul class="history-list" id="log-list">
+      <li class="empty">Nog geen links opgeslagen.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════ TAB: INSTELLINGEN ═══════════ -->
+<div class="tab-panel" id="tab-settings">
+<div class="page">
+
+  <div class="section-head">
+    <h2>Instellingen</h2>
+    <p>Beheer de dropdownopties die in de builder beschikbaar zijn. Wijzigingen worden direct opgeslagen.</p>
+  </div>
+
+  <div class="card">
+    <div class="settings-section">
+      <h3>Medium</h3>
+      <div class="tag-list" id="s-medium-tags"></div>
+      <div class="add-row">
+        <input type="text" id="s-medium-input" placeholder="Nieuw medium toevoegen..." onkeydown="if(event.key==='Enter')addTag('medium')">
+        <button class="btn btn-outline" onclick="addTag('medium')">+ Voeg toe</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="settings-section">
+      <h3>Source</h3>
+      <div class="tag-list" id="s-source-tags"></div>
+      <div class="add-row">
+        <input type="text" id="s-source-input" placeholder="Nieuwe source toevoegen..." onkeydown="if(event.key==='Enter')addTag('source')">
+        <button class="btn btn-outline" onclick="addTag('source')">+ Voeg toe</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="settings-section">
+      <h3>Campaign Name</h3>
+      <div class="tag-list" id="s-campaign-tags"></div>
+      <div class="add-row">
+        <input type="text" id="s-campaign-input" placeholder="Nieuwe campaign name..." onkeydown="if(event.key==='Enter')addTag('campaign')">
+        <button class="btn btn-outline" onclick="addTag('campaign')">+ Voeg toe</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      SF Campagnes
+    </div>
+    <table class="sf-table" id="sf-table">
+      <thead>
+        <tr>
+          <th>SF Campagne naam</th>
+          <th style="width:120px">Code</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="sf-tbody"></tbody>
+    </table>
+    <div class="btn-row" style="margin-top:0.75rem">
+      <button class="btn btn-outline" onclick="addSfRow()">+ Campagne toevoegen</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Password modal -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <h3>Instellingen</h3>
+    <p>Voer het wachtwoord in om door te gaan.</p>
+    <input type="password" id="pw-input" placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="pw-error" id="pw-error"></div>
+    <div class="pw-actions">
+      <button class="btn btn-outline" onclick="closePwModal()">Annuleren</button>
+      <button class="btn btn-yellow" onclick="checkPw()">Doorgaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Default settings ──────────────────────────────────────────────────────────
+const DEFAULTS = {
+  medium:   ['email','paid_other','insert','organic_search','social','referral','direct_mail','paid_social','paid_search','print','paid_print','flyer','direct mail','paid search'],
+  source:   ['dm_koud','dm_warm','barneveldse_krant','woudenberg_regio','urk_regio','de_nieuwe_koers','nd','woudenberg_scherpenzeel','eo_visie','transactioneel','google','meta'],
+  campaign: ['sponsor_het_leven_26','SHL_Pilot_2026Q2_Search','SHL_pilot_2026q2_Meta','SHL_video_awarenss_2026q2_Meta'],
+  content:  ['video','carousel','statisch','header','footer','variant_a','variant_b','bijsluiter','advertentie_mei','brief_mei_2026_test_A','brief_mei_2026_test_B','flyer_regio_wdb','advertentie_lokaal_wdb','advertentie_lokaal_urk','advertentie_lokaal_brn','welkomstmail-knop-header','welkomstmail-tekstlink','short_link'],
+  sf: [
+    { name: '2026 Sponsor het Leven - DM Test A',                           code: '11660' },
+    { name: '2026 Sponsor het Leven - DM Test B',                           code: '11661' },
+    { name: '2026 Sponsor het Leven Advertenties - ND',                     code: '11663' },
+    { name: '2026 Sponsor het Leven - EO Visie Bijsluiter Test A',          code: '11664' },
+    { name: '2026 Sponsor het Leven - EO Visie Bijsluiter Test B',          code: '11665' },
+    { name: '2026 Sponsor het Leven Advertenties - Woudenberg eo',          code: '11666' },
+    { name: '2026 Sponsor het Leven Advertenties - Urk eo',                 code: '11667' },
+    { name: '2026 Sponsor het Leven campagne - Meta',                       code: '11669' },
+    { name: '2026 Sponsor het Leven campagne - Google search',              code: '11670' },
+    { name: '2026 Sponsor het Leven Advertenties - Barneveldse Krant',      code: '11689' },
+    { name: '2026 Sponsor het Leven Advertenties - EO Visie',               code: '11688' },
+    { name: '2026 Sponsor het Leven - De Nieuwe Koers',                     code: '11687' },
+    { name: '2026 Sponsor het Leven Advertenties - Flyer Woudenberg / Scherpenzeel', code: '11690' },
+    { name: '2026 Sponsor het Leven - DM warme werving',                    code: '11658' },
+    { name: '2026 Actieve Middle en Major donors',                          code: '11692' },
+    { name: '2026 Passieve Middle en Major donors',                         code: '11693' },
+    { name: '2026 Potential Major en Middle donors',                        code: '11694' },
+    { name: '2026 Respondenten Middle en Major sponsors 2025',              code: '11695' },
+  ]
+};
+
+const SK = 'dorcas_utm_';
+function load(k) { try { return JSON.parse(localStorage.getItem(SK+k)); } catch { return null; } }
+function save(k, v) { localStorage.setItem(SK+k, JSON.stringify(v)); }
+
+function getSettings(k) { return load('settings_'+k) || [...(DEFAULTS[k] || [])]; }
+function saveSettings(k, v) { save('settings_'+k, v); }
+
+function getSf()  { return load('settings_sf') || DEFAULTS.sf.map(x => ({...x})); }
+function saveSf(v){ save('settings_sf', v); }
+
+function getLog() { return load('log') || []; }
+function saveLog(v){ save('log', v); }
+
+let currentUrl = '';
+
+// ── Password ──────────────────────────────────────────────────────────────────
+const PW = 'klopklop'; // ← wachtwoord hier wijzigen
+let settingsUnlocked = false;
+
+function switchTab(t) {
+  if (t === 'settings' && !settingsUnlocked) {
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').textContent = '';
+    document.getElementById('pw-input').classList.remove('error');
+    document.getElementById('pw-overlay').classList.add('show');
+    setTimeout(() => document.getElementById('pw-input').focus(), 50);
+    return;
+  }
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelector(`.tab-btn[onclick="switchTab('${t}')"]`).classList.add('active');
+  if (t === 'log') renderLog();
+  if (t === 'settings') renderSettings();
+}
+
+function checkPw() {
+  const inp = document.getElementById('pw-input');
+  if (inp.value === PW) {
+    settingsUnlocked = true;
+    closePwModal();
+    switchTab('settings');
+  } else {
+    inp.classList.add('error');
+    document.getElementById('pw-error').textContent = 'Onjuist wachtwoord.';
+    inp.select();
+  }
+}
+
+function closePwModal() {
+  document.getElementById('pw-overlay').classList.remove('show');
+}
+
+// ── Builder ───────────────────────────────────────────────────────────────────
+function populateSelect(id, items, valueFn, labelFn, placeholder) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  items.forEach(item => {
+    const o = document.createElement('option');
+    o.value = valueFn(item);
+    o.textContent = labelFn(item);
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+
+function refreshDropdowns() {
+  populateSelect('f-medium',   getSettings('medium'),   x=>x, x=>x, '— Kies medium —');
+  populateSelect('f-source',   getSettings('source'),   x=>x, x=>x, '— Kies source —');
+  populateSelect('f-campaign', getSettings('campaign'), x=>x, x=>x, '— Kies campaign —');
+  populateSelect('f-sf', getSf(), x=>x.code, x=>`${x.name} (${x.code})`, '— Geen campagne-code —');
+}
+
+function build() {
+  const base     = document.getElementById('f-url').value.trim();
+  const medium   = document.getElementById('f-medium').value;
+  const source   = document.getElementById('f-source').value;
+  const campaign = document.getElementById('f-campaign').value;
+  const content  = document.getElementById('f-content').value;
+  const term     = document.getElementById('f-term').value.trim();
+  const sfCode   = document.getElementById('f-sf').value;
+
+  const out  = document.getElementById('output');
+  const tags = document.getElementById('param-tags');
+
+  if (!base || !medium || !source || !campaign) {
+    out.innerHTML = '<span class="ph">Vul een URL in en kies medium, source en campaign.</span>';
+    tags.style.display = 'none';
+    document.getElementById('btn-copy').disabled = true;
+    currentUrl = '';
+    return;
+  }
+
+  const params = new URLSearchParams();
+  if (sfCode) params.set('campagne', sfCode);
+  params.set('utm_medium', medium);
+  params.set('utm_source', source);
+  params.set('utm_campaign', campaign);
+  if (content) params.set('utm_content', content);
+  if (term)    params.set('utm_term', term);
+
+  const sep = base.includes('?') ? '&' : '?';
+  currentUrl = base + sep + params.toString();
+
+  out.textContent = currentUrl;
+
+  let badgeHtml = '';
+  if (sfCode)   badgeHtml += `<span class="param-tag tag-campagne">campagne: ${sfCode}</span>`;
+  badgeHtml += `<span class="param-tag tag-medium">medium: ${medium}</span>`;
+  badgeHtml += `<span class="param-tag tag-source">source: ${source}</span>`;
+  badgeHtml += `<span class="param-tag tag-campaign">campaign: ${campaign}</span>`;
+  if (content)  badgeHtml += `<span class="param-tag tag-content">content: ${content}</span>`;
+  if (term)     badgeHtml += `<span class="param-tag tag-term">term: ${term}</span>`;
+  tags.innerHTML = badgeHtml;
+  tags.style.display = 'flex';
+
+  document.getElementById('btn-copy').disabled = false;
+  document.getElementById('btn-save').disabled = false;
+}
+
+function copyUrl() {
+  if (!currentUrl) return;
+  const log = getLog();
+  if (!log.find(x => x.url === currentUrl)) {
+    log.unshift({
+      url:      currentUrl,
+      medium:   document.getElementById('f-medium').value,
+      source:   document.getElementById('f-source').value,
+      campaign: document.getElementById('f-campaign').value,
+      sfCode:   document.getElementById('f-sf').value,
+      date:     new Date().toLocaleDateString('nl-NL', {day:'numeric', month:'short', year:'numeric'})
+    });
+    saveLog(log);
+    updateLogBadge();
+  }
+  navigator.clipboard.writeText(currentUrl).then(() => toast('Link gekopieerd en opgeslagen in log'));
+}
+
+function resetForm() {
+  ['f-url','f-term'].forEach(id => document.getElementById(id).value = '');
+  ['f-medium','f-source','f-campaign','f-content','f-sf'].forEach(id => document.getElementById(id).value = '');
+  build();
+}
+
+// ── Log ───────────────────────────────────────────────────────────────────────
+function renderLog() {
+  const log  = getLog();
+  const list = document.getElementById('log-list');
+  document.getElementById('btn-clear').style.display = log.length ? 'inline-flex' : 'none';
+  if (!log.length) { list.innerHTML = '<li class="empty">Nog geen links opgeslagen.</li>'; return; }
+  list.innerHTML = log.map((item, i) => `
+    <li class="history-item">
+      <div class="hi-body">
+        <div class="hi-url">${esc(item.url)}</div>
+        <div class="hi-meta">${item.medium} / ${item.source} / ${item.campaign}${item.sfCode ? ' · campagne '+item.sfCode : ''} · ${item.date}</div>
+      </div>
+      <div class="hi-actions">
+        <button class="icon-btn" title="Kopieer" onclick="copyLogItem(${i})">${iconCopy}</button>
+        <button class="icon-btn" title="Laad in formulier" onclick="loadLogItem(${i})">${iconLoad}</button>
+        <button class="icon-btn del" title="Verwijder" onclick="delLogItem(${i})">${iconTrash}</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+function updateLogBadge() {
+  const n = getLog().length;
+  document.getElementById('log-badge').textContent = n;
+  document.getElementById('log-count').textContent = n;
+}
+
+function copyLogItem(i) {
+  navigator.clipboard.writeText(getLog()[i].url).then(() => toast('Link gekopieerd'));
+}
+
+function loadLogItem(i) {
+  const item = getLog()[i];
+  try {
+    const u = new URL(item.url);
+    document.getElementById('f-url').value      = u.origin + u.pathname;
+    document.getElementById('f-medium').value   = u.searchParams.get('utm_medium') || '';
+    document.getElementById('f-source').value   = u.searchParams.get('utm_source') || '';
+    document.getElementById('f-campaign').value = u.searchParams.get('utm_campaign') || '';
+    document.getElementById('f-content').value  = u.searchParams.get('utm_content') || '';
+    document.getElementById('f-term').value     = u.searchParams.get('utm_term') || '';
+    document.getElementById('f-sf').value       = u.searchParams.get('campagne') || '';
+    build();
+    switchTab('builder');
+    toast('Geladen in formulier');
+  } catch { toast('Kon URL niet laden'); }
+}
+
+function delLogItem(i) {
+  const log = getLog();
+  log.splice(i, 1);
+  saveLog(log);
+  renderLog();
+  updateLogBadge();
+}
+
+function clearLog() {
+  if (!confirm('Alle opgeslagen links verwijderen?')) return;
+  saveLog([]);
+  renderLog();
+  updateLogBadge();
+  toast('Log gewist');
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function renderSettings() {
+  ['medium','source','campaign'].forEach(k => {
+    const items = getSettings(k);
+    document.getElementById('s-'+k+'-tags').innerHTML = items.map((v,i) => `
+      <span class="edit-tag">${esc(v)}<button onclick="removeTag('${k}',${i})" title="Verwijder">×</button></span>
+    `).join('');
+  });
+  renderSfTable();
+}
+
+function addTag(k) {
+  const inp = document.getElementById('s-'+k+'-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  const items = getSettings(k);
+  if (items.includes(val)) { toast('Bestaat al'); return; }
+  items.push(val);
+  saveSettings(k, items);
+  inp.value = '';
+  renderSettings();
+  refreshDropdowns();
+  toast('Toegevoegd');
+}
+
+function removeTag(k, i) {
+  const items = getSettings(k);
+  items.splice(i, 1);
+  saveSettings(k, items);
+  renderSettings();
+  refreshDropdowns();
+}
+
+function renderSfTable() {
+  const rows = getSf();
+  document.getElementById('sf-tbody').innerHTML = rows.map((r,i) => `
+    <tr>
+      <td><input type="text" value="${esc(r.name)}" onchange="updateSf(${i},'name',this.value)"></td>
+      <td><input type="text" value="${esc(r.code)}" onchange="updateSf(${i},'code',this.value)" style="text-align:center"></td>
+      <td><button class="icon-btn del del-row" onclick="deleteSfRow(${i})" title="Verwijder">${iconTrash}</button></td>
+    </tr>
+  `).join('');
+}
+
+function updateSf(i, key, val) {
+  const rows = getSf();
+  rows[i][key] = val;
+  saveSf(rows);
+  refreshDropdowns();
+}
+
+function addSfRow() {
+  const rows = getSf();
+  rows.push({ name: 'Nieuwe campagne', code: '' });
+  saveSf(rows);
+  renderSfTable();
+  refreshDropdowns();
+}
+
+function deleteSfRow(i) {
+  const rows = getSf();
+  rows.splice(i, 1);
+  saveSf(rows);
+  renderSfTable();
+  refreshDropdowns();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+const iconCopy  = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+const iconLoad  = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const iconTrash = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+refreshDropdowns();
+updateLogBadge();
+</script>
+</body>
+</html>
