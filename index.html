@@ -477,6 +477,10 @@
       <span class="ph">Vul hierboven URL, medium, source en campaign in.</span>
     </div>
     <div class="param-tags" id="param-tags" style="display:none"></div>
+    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.88rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--brand6);margin-bottom:0.75rem">
+      <input type="checkbox" id="f-contactid" onchange="build()" style="width:16px;height:16px;accent-color:var(--brand1);cursor:pointer">
+      Toevoegen contact ID <span style="font-family:'Courier New',monospace;font-size:0.78rem;color:var(--brand12);background:var(--brand11);padding:1px 6px;border-radius:4px">dcid=%%ContactID%%</span>
+    </label>
     <div class="btn-row">
       <button class="btn btn-yellow" onclick="copyUrl()" id="btn-copy" disabled>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -734,8 +738,9 @@ function build() {
   if (content) params.set('utm_content', content);
   if (term)    params.set('utm_term', term);
 
+  const contactId = document.getElementById('f-contactid').checked;
   const sep = base.includes('?') ? '&' : '?';
-  currentUrl = base + sep + params.toString();
+  currentUrl = base + sep + params.toString() + (contactId ? '&dcid=%%ContactID%%' : '');
 
   out.textContent = currentUrl;
 
