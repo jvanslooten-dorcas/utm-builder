@@ -305,7 +305,7 @@
     </div>
     <div>
       <label for="f-label">Soort / doel <span class="opt">wordt getoond in het log</span></label>
-      <input type="text" id="f-label" placeholder="bijv. Actiepagina Sponsor het leven — DM mailing mei">
+      <input type="text" id="f-label" placeholder="[Pagina] - [Campagne] - [Kanaal]">
     </div>
   </div>
 
@@ -344,7 +344,7 @@
       </div>
       <div>
         <label for="f-term">Term <span class="opt">optioneel</span></label>
-        <input type="text" id="f-term" placeholder="bijv. noodhulp-oekraine" oninput="build()">
+        <input type="text" id="f-term" placeholder="" oninput="build()">
       </div>
     </div>
   </div>
@@ -355,7 +355,7 @@
       SF Campagne <span style="font-weight:400;color:var(--brand12);font-size:0.8rem;margin-left:4px">— voegt campagne= parameter toe</span>
     </div>
     <div>
-      <label for="f-sf">SF Campagne <span class="opt">optioneel</span></label>
+      <label for="f-sf">SF Campagne <span class="opt">optioneel — verplicht bij donatiepagina's</span></label>
       <select id="f-sf" onchange="build()"><option value="">— Geen campagne-code —</option></select>
     </div>
   </div>
@@ -369,7 +369,7 @@
       <span class="ph">Vul een URL in en kies medium, source en campaign.</span>
     </div>
     <div class="param-tags" id="param-tags" style="display:none"></div>
-    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.88rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--brand6);margin-top:0.85rem;margin-bottom:0.75rem">
+    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.88rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--brand6);margin-top:1.1rem;margin-bottom:0.75rem">
       <input type="checkbox" id="f-contactid" onchange="build()" style="width:16px;height:16px;accent-color:var(--brand1);cursor:pointer">
       Toevoegen contact ID <span style="font-family:'Courier New',monospace;font-size:0.78rem;color:var(--brand12);background:var(--brand11);padding:1px 6px;border-radius:4px">dcid=%%Contact ID%%</span>
     </label>
